@@ -7,16 +7,16 @@ namespace SimpleHuffman
     {
         HuffmanNode rootOfTree;
 
-        public HuffmanCodec(Letter[] letters) =>
+        public HuffmanCodec(WeightedLetter[] letters) =>
             rootOfTree = GetHuffmanTreeFrom(letters);
 
-        HuffmanNode GetHuffmanTreeFrom(Letter[] letters)
+        HuffmanNode GetHuffmanTreeFrom(WeightedLetter[] letters)
         {
-            var nodes = ConvertLettersToNodes(letters);
-            return ConstructHuffmanTree(new List<HuffmanNode>(nodes));
+            var nodes = ConvertLettersToLeafNodes(letters);
+            return ConstructHuffmanTreeFromLeafs(new List<HuffmanNode>(nodes));
         }
 
-        HuffmanNode[] ConvertLettersToNodes(Letter[] letters)
+        HuffmanNode[] ConvertLettersToLeafNodes(WeightedLetter[] letters)
         {
             HuffmanNode[] trees = new HuffmanNode[letters.Length];
             for (var i = 0; i < trees.Length; i++)
@@ -24,12 +24,12 @@ namespace SimpleHuffman
             return trees;
         }
 
-        HuffmanNode ConstructHuffmanTree(List<HuffmanNode> nodes)
+        HuffmanNode ConstructHuffmanTreeFromLeafs(List<HuffmanNode> nodes)
         {
             while (nodes.Count > 1)
             {
-                var node1 = FindMin(nodes);
-                var node2 = FindMinExcept(nodes, node1);
+                var node1 = FindNodeWithMinWeight(nodes);
+                var node2 = FindNodeMinWeightExceptNode(nodes, node1);
                 var newNode = new HuffmanNode(node1, node2);
                 nodes.Add(newNode);
                 nodes.Remove(node1);
@@ -38,7 +38,7 @@ namespace SimpleHuffman
             return nodes[0];
         }
 
-        HuffmanNode FindMin(List<HuffmanNode> nodes)
+        HuffmanNode FindNodeWithMinWeight(List<HuffmanNode> nodes)
         {
             var min = nodes[0];
             for (int i = 1; i < nodes.Count; i++)
@@ -46,7 +46,7 @@ namespace SimpleHuffman
             return min;
         }
 
-        HuffmanNode FindMinExcept(List<HuffmanNode> nodes, HuffmanNode nodeToExcept)
+        HuffmanNode FindNodeMinWeightExceptNode(List<HuffmanNode> nodes, HuffmanNode nodeToExcept)
         {
             HuffmanNode min = nodes[0];
             for (var i = 0; i < nodes.Count; i++)
@@ -95,6 +95,40 @@ namespace SimpleHuffman
                     currentNode = rootOfTree;
                 }
             }
+            return result;
+        }
+
+        public List<List<string>> GetTreeAsStrings()
+        {
+            var result = new List<List<string>>();
+            var listOfNodesToProcess = new Queue<HuffmanNode>();
+            var listOfNextNodes = new Queue<HuffmanNode>();
+            listOfNodesToProcess.Enqueue(rootOfTree);
+            var depth = 0;
+
+            while(listOfNodesToProcess.Count != 0)
+            {
+                result.Add(new List<string>());
+                while(listOfNodesToProcess.Count != 0)
+                {
+                    result[depth].Add(listOfNodesToProcess.Peek().GetLettersAsString());
+                    var childrenList = GetNodeChildren(listOfNodesToProcess.Dequeue());
+                    foreach(var childNode in childrenList)
+                        listOfNextNodes.Enqueue(childNode);
+                }
+                depth++;
+                listOfNodesToProcess = listOfNextNodes;
+                listOfNextNodes = new Queue<HuffmanNode>();
+            }
+ 
+            return result;
+        }
+
+        List<HuffmanNode> GetNodeChildren(HuffmanNode node)
+        {
+            var result = new List<HuffmanNode>();
+            if (node.leftBranch != null) result.Add(node.leftBranch);
+            if (node.rightBranch != null) result.Add(node.rightBranch);
             return result;
         }
     }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SimpleHuffman
 {
-    struct Letter
+    struct WeightedLetter
     {
         public char symbol;
         public float weight;
@@ -16,6 +16,11 @@ namespace SimpleHuffman
         public HuffmanNode leftBranch;
         public HuffmanNode rightBranch;
 
+        /// <summary>
+        /// Constructor for creating gathering node (union for leaves or other gathering nodes).
+        /// </summary>
+        /// <param name="node1"></param>
+        /// <param name="node2"></param>
         public HuffmanNode(HuffmanNode node1, HuffmanNode node2)
         {
             letters = GetLettersFrom2Nodes(node1, node2);
@@ -24,7 +29,11 @@ namespace SimpleHuffman
             rightBranch = node2;
         }
 
-        public HuffmanNode(Letter letter)
+        /// <summary>
+        /// Constructor for creating node as leaf.
+        /// </summary>
+        /// <param name="letter"></param>
+        public HuffmanNode(WeightedLetter letter)
         {
             letters = new List<char> { letter.symbol };
             weight = letter.weight;
@@ -33,11 +42,8 @@ namespace SimpleHuffman
         List<char> GetLettersFrom2Nodes(HuffmanNode node1, HuffmanNode node2)
         {
             var letters = new List<char>();
-            var i = 0;
-            for (; i < node1.letters.Count; i++)
-                letters.Add(node1.letters[i]);
-            for (; i - node1.letters.Count < node2.letters.Count; i++)
-                letters.Add(node2.letters[i - node1.letters.Count]);
+            letters.AddRange(node1.letters);
+            letters.AddRange(node2.letters);
             return letters;
         }
 
@@ -66,23 +72,7 @@ namespace SimpleHuffman
             else throw new Exception();
         }
 
-        public void PrintTree()
-        {
-            var lettersStr = LettersIntoString();
-            Console.WriteLine($" ME: {lettersStr}");
-            if (leftBranch != null)
-            {
-                Console.Write("Left: ");
-                leftBranch.PrintTree();
-            }
-            if (rightBranch != null)
-            {
-                Console.Write("Right: ");
-                rightBranch.PrintTree();
-            }
-        }
-
-        string LettersIntoString()
+        public string GetLettersAsString()
         {
             var str = string.Empty;
             foreach (var ch in letters)

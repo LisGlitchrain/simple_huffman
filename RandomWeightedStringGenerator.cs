@@ -6,9 +6,9 @@ namespace SimpleHuffman
     {
         float[] thresholds;
         Random rand;
-        Letter[] letters;
+        WeightedLetter[] letters;
 
-        public RandomWeightedStringGenerator(Letter[] letters)
+        public RandomWeightedStringGenerator(WeightedLetter[] letters)
         {
             this.letters = letters;
             float sumWeight = 0;
@@ -37,10 +37,12 @@ namespace SimpleHuffman
             return thresholds.Length - 2;
         }
 
-        public void PrintThresholds()
+        public string GetThresholdsString()
         {
+            var result = string.Empty;
             foreach (var threshold in thresholds)
-                Console.WriteLine(threshold);
+                result += $"{threshold}, ";
+            return result;
         }
     }
 }
